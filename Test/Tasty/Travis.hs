@@ -196,12 +196,16 @@ travisOutput TravisConfig{..} output smap =
     foldHeading name printHeading foldBody = do
         (printBody, stats@Statistics{..}, kids) <- foldBody
         let act label n = WrapIO $ do
-                printHeading
-                when mustSummarise $ printStatisticsNoTime stats
                 when mustFold $
                     putStrLn $ "travis_fold:start:" ++ foldMarker ++ "\\r"
 
-                unwrapIO $ printBody (foldMarker ++ ":") (n+1)
+                if mustSummarise
+                   then do
+                       putStr $ replicate (2*n) ' ' ++ name ++ ": "
+                       printStatisticsNoTime stats
+                   else printHeading
+
+                unwrapIO $ printBody (foldMarker ++ ".") (n+1)
 
                 when mustFold $
                     putStrLn $ "travis_fold:end:" ++ foldMarker ++ "\\r"

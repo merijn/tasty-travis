@@ -1,5 +1,5 @@
 Name:               tasty-travis
-Version:            0.1.0
+Version:            0.1.2
 
 Homepage:           https://github.com/merijn/tasty-travis
 Bug-Reports:        https://github.com/merijn/tasty-travis/issues
@@ -44,6 +44,16 @@ Library
 
   Build-Depends:        base >= 4.6 && < 5
                ,        tasty == 0.12.*
+
+Test-Suite test
+  Default-Language:     Haskell2010
+  Type:                 exitcode-stdio-1.0
+  Main-Is:              Test.hs
+  GHC-Options:          -Wall -fno-warn-unused-do-bind
+  Build-Depends:        base
+               ,        tasty
+               ,        tasty-hunit == 0.9.*
+               ,        tasty-travis
 
 Source-Repository head
   Type:     git
