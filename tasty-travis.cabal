@@ -17,6 +17,8 @@ Build-Type:         Simple
 Tested-With:        GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2,
                     GHC == 8.2.1, GHC == 8.3.*
 
+Extra-Source-Files: README.md
+
 Synopsis:           Fancy Travis CI output for tasty tests.
 
 Description:
@@ -27,7 +29,7 @@ Description:
     .
     * Coloured output
     .
-    * Hiding successfull tests
+    * Hiding successful tests
 
 Library
   Default-Language:     Haskell2010
