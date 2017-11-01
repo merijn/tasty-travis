@@ -201,7 +201,7 @@ travisOutput TravisConfig{..} output smap =
                 when mustFold $
                     putStrLn $ "travis_fold:start:" ++ foldMarker ++ "\\r"
 
-                unwrapIO $ printBody (foldMarker ++ "/") (n+1)
+                unwrapIO $ printBody (foldMarker ++ ":") (n+1)
 
                 when mustFold $
                     putStrLn $ "travis_fold:end:" ++ foldMarker ++ "\\r"
