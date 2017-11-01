@@ -11,7 +11,7 @@ Copyright:          Copyright © 2017 Merijn Verstraaten
 License:            BSD3
 License-File:       LICENSE
 
-Category:           System
+Category:           Testing
 Cabal-Version:      >= 1.10
 Build-Type:         Simple
 Tested-With:        GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2,
