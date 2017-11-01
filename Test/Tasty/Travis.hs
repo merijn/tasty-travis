@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ImplicitParams #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -29,20 +30,20 @@ module Test.Tasty.Travis
     , listingTests
     ) where
 
-import Control.Applicative (liftA2)
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative (Applicative(..), (<$>), (<$), (<*>))
+import Data.Monoid (Monoid(..))
+#endif
 import Control.Exception (bracket_)
 import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.Monoid (Sum(..))
-import Data.Typeable (Typeable)
 import System.Environment (lookupEnv)
 import System.Exit (exitFailure)
 import System.IO
     (BufferMode(LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
 import System.Console.ANSI (hSupportsANSI, hideCursor, showCursor)
 
-import Test.Tasty.Ingredients.Basic (listingTests)
-import Test.Tasty.Ingredients (Ingredient(TestReporter))
 import Test.Tasty.Ingredients.ConsoleReporter
 import Test.Tasty.Options (IsOption(..), OptionSet, setOption)
 import Test.Tasty.Runners
@@ -52,7 +53,7 @@ newtype WrapIO a = WrapIO { unwrapIO :: IO a }
 
 instance Monoid a => Monoid (WrapIO a) where
     mempty = WrapIO $ return mempty
-    mappend = liftA2 mappend
+    mappend x y = mappend <$> x <*> y
 
 -- | Configuration for the output generated on Travis CI.
 data TravisConfig
@@ -95,21 +96,21 @@ data FoldGroup
     -- ^ Fold groups N or less levels from the root.
     | FoldAll
     -- ^ Fold all groups.
-    deriving (Eq, Show, Typeable)
+    deriving (Eq, Show)
 
 -- | Control when the tests/groups specified by 'FoldGroup' are folded.
 data FoldWhen
     = FoldNever -- ^ Never fold output.
     | FoldSuccess -- ^ Fold all groups that have 0 failures.
     | FoldAlways -- ^ Always fold groups.
-    deriving (Eq, Show, Typeable)
+    deriving (Eq, Show)
 
 -- | Control when a summary is printed before a fold.
 data SummaryWhen
     = SummaryNever -- ^ Never print summaries.
     | SummaryFailures -- ^ Print summaries before folds with failures.
     | SummaryAlways -- ^ Always print summaries before folds.
-    deriving (Eq, Show, Typeable)
+    deriving (Eq, Show)
 
 -- | Create a Tasty 'Ingredient' from a 'TravisConfig'. Defaults to the regular
 -- console output when the TRAVIS environment variable is not set to \"true\".
@@ -188,8 +189,8 @@ travisOutput TravisConfig{..} output smap =
     foldTest _name printName getResult printResult = WrapIO $ do
         r <- getResult
         return $ case resultOutcome r of
-                Success -> (success r, Statistics 1 0, 1)
-                Failure{} -> (doPrint r, Statistics 1 1, 1)
+                Success -> (success r, Statistics 1 0, Sum 1)
+                Failure{} -> (doPrint r, Statistics 1 1, Sum 1)
       where
         success r | travisHideSuccesses = \_ _ -> return ()
                   | otherwise = doPrint r
@@ -223,8 +224,8 @@ travisOutput TravisConfig{..} output smap =
                                     , doSummary travisSummaryWhen stats]
 
         if statTotal == 0 || (statFailures == 0 && travisHideSuccesses)
-           then return (\_ _ -> return (), stats, 0)
-           else return (act, stats, 1)
+           then return (\_ _ -> return (), stats, Sum 0)
+           else return (act, stats, Sum 1)
 
 doFold :: FoldWhen -> Statistics -> FoldGroup -> Sum Int -> Int -> Bool
 doFold FoldNever _ = \_ _ _ -> False

@@ -1,6 +1,8 @@
 Tasty Travis: Fancy Travis CI output for tasty tests
 ====================================================
 [![BSD3](https://img.shields.io/badge/License-BSD-blue.svg)](https://en.wikipedia.org/wiki/BSD_License)
+[![Hackage](https://img.shields.io/hackage/v/tasty-travis.svg)](https://hackage.haskell.org/package/tasty-travis)
+[![Build Status](https://travis-ci.org/merijn/tasty-travis.svg)](https://travis-ci.org/merijn/tasty-travis)
 
 **Tasty Travis** provides fancy
 [Tasty](https://hackage.haskell.org/package/tasty) test output on
