@@ -34,7 +34,6 @@ module Test.Tasty.Travis
 import Control.Applicative (Applicative(..), (<$>), (<$), (<*>))
 import Data.Monoid (Monoid(..))
 #endif
-import Control.Exception (bracket_)
 import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.Monoid (Sum(..))
@@ -42,7 +41,6 @@ import System.Environment (lookupEnv)
 import System.Exit (exitFailure)
 import System.IO
     (BufferMode(LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
-import System.Console.ANSI (hSupportsANSI, hideCursor, showCursor)
 
 import Test.Tasty.Ingredients.ConsoleReporter
 import Test.Tasty.Options (IsOption(..), OptionSet, setOption)
@@ -154,8 +152,6 @@ runTravisTestReporter
     -> StatusMap
     -> IO (Time -> IO Bool)
 runTravisTestReporter cfg@TravisConfig{..} opts tree smap = do
-  isTerm <- hSupportsANSI stdout
-  withTerm isTerm $ do
     let ?colors = travisUseColour
     let testOutput = buildTestOutput opts tree
 
@@ -164,11 +160,6 @@ runTravisTestReporter cfg@TravisConfig{..} opts tree smap = do
     when (not travisQuiet) $ unwrapIO $ output "" 0
     return $ \time ->
         (statFailures stats == 0) <$ printStatistics stats time
-  where
-    withTerm :: Bool -> IO a -> IO a
-    withTerm isTerm
-        | isTerm = bracket_ hideCursor showCursor
-        | otherwise = id
 
 travisOutput
     :: (?colors :: Bool)

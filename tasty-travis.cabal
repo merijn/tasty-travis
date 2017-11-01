@@ -43,7 +43,6 @@ Library
                         Trustworthy
 
   Build-Depends:        base >= 4.6 && < 5
-               ,        ansi-terminal >=0.6.2 && < 0.8
                ,        tasty == 0.12.*
 
 Source-Repository head
