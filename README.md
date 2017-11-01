@@ -16,8 +16,7 @@ Here's what an example `test.hs` might look:
 
 ```haskell
 import Test.Tasty
-import Test.Tasty.Ingredients.Basic (listingTests)
-import Test.Tasty.Travis (travisTestReporter, defaultConfig)
+import Test.Tasty.Travis (travisTestReporter, defaultConfig, listingTests)
 import Test.Tasty.HUnit
 
 import Data.List

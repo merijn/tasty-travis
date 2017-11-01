@@ -26,6 +26,7 @@ module Test.Tasty.Travis
     , FoldGroup(..)
     , FoldWhen(..)
     , SummaryWhen(..)
+    , listingTests
     ) where
 
 import Control.Applicative (liftA2)
@@ -40,6 +41,7 @@ import System.IO
     (BufferMode(LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
 import System.Console.ANSI (hSupportsANSI, hideCursor, showCursor)
 
+import Test.Tasty.Ingredients.Basic (listingTests)
 import Test.Tasty.Ingredients (Ingredient(TestReporter))
 import Test.Tasty.Ingredients.ConsoleReporter
 import Test.Tasty.Options (IsOption(..), OptionSet, setOption)
