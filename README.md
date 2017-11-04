@@ -17,14 +17,35 @@ Example
 Here's what an example `test.hs` might look:
 
 ```haskell
+import Data.List
+import Data.Ord
+import Data.Tagged (Tagged)
+import Data.Typeable (Typeable)
+import Options.Applicative (switch, long, help)
+
 import Test.Tasty
+import Test.Tasty.Options
 import Test.Tasty.Travis (travisTestReporter, defaultConfig)
 import Test.Tasty.HUnit
 
-import Data.List
-import Data.Ord
+newtype EnableTravis = EnableTravis Bool
+  deriving (Eq, Ord, Typeable)
 
-main = travisTestReporter defaultConfig [] tests
+instance IsOption EnableTravis where
+  defaultValue = EnableTravis False
+  parseValue = fmap EnableTravis . safeRead
+  optionName = return "enable-travis"
+  optionHelp = return "Run Travis tests."
+  optionCLParser =
+    fmap EnableTravis $
+    switch
+      (  long (untag (optionName :: Tagged EnableTravis String))
+      <> help (untag (optionHelp :: Tagged EnableTravis String))
+      )
+
+main = travisTestReporter cfg [] tests
+  where
+    cfg = defaultConfig { travisTestOptions = setOption (EnableTravis True) }
 
 tests :: TestTree
 tests = testGroup "Unit tests"
@@ -34,5 +55,10 @@ tests = testGroup "Unit tests"
   -- the following test does not hold
   , testCase "List comparison (same length)" $
       [1, 2, 3] `compare` [1,2,2] @?= LT
+  , askOption $ \(EnableTravis enable) ->
+    if enable then travisTests else testGroup "" []
   ]
+
+travisTests :: TestTree
+travisTests = testGroup "Travis" [ {- Travis tests here -} ]
 ```
