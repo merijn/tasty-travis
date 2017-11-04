@@ -15,9 +15,9 @@
 -- <https://travis-ci.org/ Travis CI> support for
 -- <https://hackage.haskell.org/package/tasty tasty>.
 --
--- This module provides a tasty 'Ingredient' which functions as a drop-in
--- replacement for the 'consoleTestReporter' from tasty. It detects whether the
--- \"TRAVIS\" environment variable is set to \"true\". If so, it produces
+-- This module provides a tasty test reporter which functions as a drop-in
+-- replacement for 'defaultMainWithIngredients' from tasty. It detects whether
+-- the \"TRAVIS\" environment variable is set to \"true\". If so, it produces
 -- output as configured. If not, it falls back to the 'consoleTestReporter'.
 -------------------------------------------------------------------------------
 module Test.Tasty.Travis
@@ -27,7 +27,6 @@ module Test.Tasty.Travis
     , FoldGroup(..)
     , FoldWhen(..)
     , SummaryWhen(..)
-    , listingTests
     ) where
 
 #if !MIN_VERSION_base(4,8,0)
@@ -38,9 +37,7 @@ import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.Monoid (Sum(..))
 import System.Environment (lookupEnv)
-import System.Exit (exitFailure)
-import System.IO
-    (BufferMode(LineBuffering), hPutStrLn, hSetBuffering, stderr, stdout)
+import System.IO (BufferMode(LineBuffering), hSetBuffering, stdout)
 
 import Test.Tasty.Ingredients.ConsoleReporter
 import Test.Tasty.Options (IsOption(..), OptionSet, setOption)
@@ -68,6 +65,9 @@ data TravisConfig
     -- ^ When to fold.
     , travisSummaryWhen :: SummaryWhen
     -- ^ When to print a summary for a fold.
+    , travisTestOptions :: OptionSet -> OptionSet
+    -- ^ Set/unset options when running on Travis. Functions like
+    -- 'PlusTestOptions' when running on Travis, does nothing otherwise.
     }
 
 -- | Default Travis configuration. Coloured output. Folds all successes away.
@@ -80,6 +80,7 @@ defaultConfig = TravisConfig
     , travisFoldGroup = FoldAll
     , travisFoldWhen = FoldSuccess
     , travisSummaryWhen = SummaryFailures
+    , travisTestOptions = id
     } where
         HideSuccesses hide = defaultValue
         Quiet quiet = defaultValue
@@ -110,40 +111,40 @@ data SummaryWhen
     | SummaryAlways -- ^ Always print summaries before folds.
     deriving (Eq, Show)
 
--- | Create a Tasty 'Ingredient' from a 'TravisConfig'. Defaults to the regular
--- console output when the TRAVIS environment variable is not set to \"true\".
+-- | A Tasty test runner whose output can be controlled with a 'TravisConfig'.
+-- Defaults to the regular console reporting when the TRAVIS environment
+-- variable is not set to \"true\".
 --
 -- Usage:
 --
--- @'defaultMainWithIngredients' ['listingTests', 'travisTestReporter' yourConfig] yourTestTree@
-travisTestReporter :: TravisConfig -> Ingredient
-travisTestReporter cfg@TravisConfig{..} = TestReporter baseOpts runTests
+-- @'travisTestReporter' yourConfig [] yourTestTree@
+travisTestReporter :: TravisConfig -> [Ingredient] -> TestTree -> IO ()
+travisTestReporter cfg@TravisConfig{..} ingredients tests = do
+    isTravis <- maybe False (=="true") <$> lookupEnv "TRAVIS"
+    let finalIngredients
+            | isTravis = ingredients ++ [listingTests, travisReporter]
+            | otherwise = ingredients ++ [listingTests, consoleTestReporter]
+
+        tree | isTravis = PlusTestOptions travisTestOptions tests
+             | otherwise = tests
+
+    defaultMainWithIngredients finalIngredients tree
   where
-    TestReporter baseOpts consoleReporter = consoleTestReporter
+    TestReporter baseOpts _ = consoleTestReporter
+
+    travisReporter :: Ingredient
+    travisReporter = TestReporter baseOpts runTests
 
     runTests :: OptionSet -> TestTree
              -> Maybe (StatusMap -> IO (Time -> IO Bool))
-    runTests opts tree = Just $ \smap -> do
-        isTravis <- maybe False (=="true") <$> lookupEnv "TRAVIS"
-        if isTravis
-           then runTravisTestReporter cfg travisOptions tree smap
-           else runConsoleReporter smap
+    runTests opts tree = Just $ \smap ->
+        runTravisTestReporter cfg travisOptions tree smap
       where
         travisOptions :: OptionSet
         travisOptions = setOption (Quiet travisQuiet)
                       . setOption (HideSuccesses travisHideSuccesses)
                       . setOption (if travisUseColour then Always else Auto)
                       $ opts
-
-        errMsg :: String
-        errMsg = "Unexpected failure in Tasty's 'consoleTestReporter'!"
-
-        runConsoleReporter :: StatusMap -> IO (Time -> IO Bool)
-        runConsoleReporter = case consoleReporter opts tree of
-            Just f -> f
-            Nothing -> const $ do
-                hPutStrLn stderr errMsg
-                exitFailure
 
 runTravisTestReporter
     :: TravisConfig

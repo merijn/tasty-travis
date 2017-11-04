@@ -3,7 +3,7 @@ import Test.Tasty.HUnit
 import Test.Tasty.Travis
 
 main :: IO ()
-main = defaultMainWithIngredients ingredients . testGroup "tasty-travis" $
+main = travisTestReporter travisConfig [] . testGroup "tasty-travis" $
     [ testGroup "Group 1"
         [ testCase "Test 1" $ return ()
         , testCase "Test 2" $ return ()
@@ -23,7 +23,6 @@ main = defaultMainWithIngredients ingredients . testGroup "tasty-travis" $
     , testGroup "Group 4" [ testCase "Test 1" $ return ()]
     ]
   where
-    ingredients = [ listingTests , travisTestReporter travisConfig ]
     travisConfig = defaultConfig
       { travisFoldGroup = FoldMoreThan 2
       , travisSummaryWhen = SummaryAlways

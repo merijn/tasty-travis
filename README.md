@@ -18,15 +18,13 @@ Here's what an example `test.hs` might look:
 
 ```haskell
 import Test.Tasty
-import Test.Tasty.Travis (travisTestReporter, defaultConfig, listingTests)
+import Test.Tasty.Travis (travisTestReporter, defaultConfig)
 import Test.Tasty.HUnit
 
 import Data.List
 import Data.Ord
 
-main = defaultMainWithIngredients ingredients tests
-  where
-    ingredients = [ listingTests, travisTestReporter defaultConfig ]
+main = travisTestReporter defaultConfig [] tests
 
 tests :: TestTree
 tests = testGroup "Unit tests"
