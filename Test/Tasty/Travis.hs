@@ -31,14 +31,11 @@ module Test.Tasty.Travis
 
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative (Applicative(..), (<$>), (<$), (<*>))
-import Data.Monoid (Monoid(..))
 #endif
 import Control.Monad (when)
 import Data.Char (isSpace)
 import Data.Monoid (Sum(..))
-#if MIN_VERSION_base(4,9,0)
-import Data.Semigroup (Semigroup(..))
-#endif
+import Data.Semigroup as Sem
 import System.Environment (lookupEnv)
 import System.IO (BufferMode(LineBuffering), hSetBuffering, stdout)
 
@@ -49,10 +46,8 @@ import Test.Tasty.Runners
 newtype WrapIO a = WrapIO { unwrapIO :: IO a }
     deriving (Applicative, Functor, Monad)
 
-#if MIN_VERSION_base(4,9,0)
-instance Semigroup a => Semigroup (WrapIO a) where
+instance Sem.Semigroup a => Sem.Semigroup (WrapIO a) where
     x <> y = (<>) <$> x <*> y
-#endif
 
 instance Monoid a => Monoid (WrapIO a) where
     mempty = WrapIO $ return mempty
