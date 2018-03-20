@@ -1,12 +1,12 @@
 Name:               tasty-travis
-Version:            0.2.0
+Version:            0.2.0.1
 
 Homepage:           https://github.com/merijn/tasty-travis
 Bug-Reports:        https://github.com/merijn/tasty-travis/issues
 
 Author:             Merijn Verstraaten
 Maintainer:         Merijn Verstraaten <merijn@inconsistent.nl>
-Copyright:          Copyright © 2017 Merijn Verstraaten
+Copyright:          Copyright © 2017-2018 Merijn Verstraaten
 
 License:            BSD3
 License-File:       LICENSE
@@ -15,7 +15,7 @@ Category:           Testing
 Cabal-Version:      >= 1.10
 Build-Type:         Simple
 Tested-With:        GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2,
-                    GHC == 8.2.1, GHC == 8.3.*
+                    GHC == 8.2.2, GHC == 8.4.1, GHC == 8.5.*
 
 Extra-Source-Files: README.md
 
