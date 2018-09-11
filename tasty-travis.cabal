@@ -1,5 +1,5 @@
 Name:               tasty-travis
-Version:            0.2.0.1
+Version:            0.2.0.2
 
 Homepage:           https://github.com/merijn/tasty-travis
 Bug-Reports:        https://github.com/merijn/tasty-travis/issues
@@ -15,7 +15,7 @@ Category:           Testing
 Cabal-Version:      >= 1.10
 Build-Type:         Simple
 Tested-With:        GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.2,
-                    GHC == 8.2.2, GHC == 8.4.1, GHC == 8.5.*
+                    GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1
 
 Extra-Source-Files: README.md, CHANGELOG.md
 
@@ -43,7 +43,7 @@ Library
                         Trustworthy
 
   Build-Depends:        base >= 4.6 && < 5
-               ,        tasty == 0.12.*
+               ,        tasty >= 0.12 && < 1.2
 
   if !impl(ghc >= 8.0)
     Build-Depends:      semigroups == 0.18.*
