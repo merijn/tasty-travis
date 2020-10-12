@@ -62,7 +62,3 @@ Test-Suite test
 Source-Repository head
   Type:     git
   Location: ssh://github.com:merijn/tasty-travis.git
-
-Source-Repository head
-  Type:     mercurial
-  Location: https://bitbucket.org/merijnv/tasty-travis
