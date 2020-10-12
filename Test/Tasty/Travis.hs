@@ -34,7 +34,6 @@ import Control.Applicative (Applicative(..), (<$>), (<$), (<*>))
 #endif
 import Control.Monad (when)
 import Data.Char (isSpace)
-import Data.Monoid (Sum(..))
 import Data.Semigroup as Sem
 import System.Environment (lookupEnv)
 import System.IO (BufferMode(LineBuffering), hSetBuffering, stdout)
